@@ -1,0 +1,191 @@
+---
+title: "Filterable plotly ggplots"
+author: "Alex Zajichek"
+date: "2023-08-09"
+output: html_document
+---
+
+Here we go through a demonstration of how to build an HTML widget consisting of a `plotly` graph that is defined through `ggplot2` and has filters attached so the user can toggle through what to see in the graph. This is all self-contained in the resulting HTML output file. In short, we can have an interactive graph in our HTML document.
+
+First, we need to load some packages.
+
+```{r}
+library(tidyverse)
+library(survival)
+library(plotly)
+library(crosstalk)
+```
+
+Then, we'll construct a data set. Our focus will be on displaying survival curves for different subsets of patients.
+
+```{r}
+dat <- 
+    survival::veteran |> 
+    as_tibble() |>
+    transmute(
+        Treatment = paste0("Treatment ", trt),
+        CellType = celltype,
+        Age = 
+            case_when(
+                age > 60 ~ "Greater than 60",
+                TRUE ~ "Less than (or equal) to 60"
+            ),
+        Time = time,
+        Status = status
+    )
+dat
+```
+
+Next, we'll `nest` the data and extract the survival function from each subset.
+
+```{r}
+dat <-
+    dat |>
+    
+    # Make a nested data set
+    group_by(
+        CellType,
+        Age,
+        Treatment
+    ) |> 
+    nest() |>
+    
+    # Get survival curves
+    mutate(
+        Survival = 
+            data |> 
+            map(
+                function(.x) {
+                    
+                    # 1. Get the survival curve
+                    temp_mod <- survfit(Surv(Time, Status) ~ 1, data = .x)
+                    
+                    # 2. Make a data frame of desired elements
+                    tibble(
+                        Time = temp_mod$time,
+                        Estimate = temp_mod$surv,
+                        Lower = temp_mod$lower,
+                        Upper = temp_mod$upper,
+                        AtRisk = temp_mod$n.risk
+                    )
+                    
+                }
+            )
+    ) |>
+    
+    # Remove the data set
+    select(-data) |> 
+    
+    # Expand the set 
+    unnest(cols = Survival) |>
+    ungroup()
+
+# Make a shared data set
+sd <-SharedData$new(dat)
+
+# Make the cell type filter
+filter_celltype <- 
+    filter_select(
+        id = "celltype",
+        label = "CellType",
+        sharedData = sd,
+        group = ~CellType,
+        multiple = FALSE
+    )
+
+# Make the age filter
+filter_age <- 
+    filter_select(
+        id = "age",
+        label = "Age",
+        sharedData = sd,
+        group = ~Age,
+        multiple = FALSE
+    )
+
+# Put all UI objects into a container
+bscols(
+    
+    # Put everything in a single columns
+    shiny::fluidRow(
+        shiny::column(
+            width = 12,
+            
+            # Add a row of filters
+            shiny::fluidRow(
+                shiny::column(filter_celltype, width = 6),
+                shiny::column(filter_age, width = 6)
+            ),
+            
+            # Add the plot
+            ggplotly(
+                sd |>
+                    
+                    ggplot(
+                        aes(
+                            x = Time,
+                            y = Estimate,
+                            group = Treatment,
+                            text = 
+                                paste0(
+                                    "<br>", Treatment,
+                                    "<br>Time: ", round(Time, 2),
+                                    "<br>Risk: ", round(Estimate*100, 1), "%",
+                                    "<br>Lower: ", round(Lower*100, 1), "%",
+                                    "<br>Upper: ", round(Upper*100, 1), "%",
+                                    "<br>At-Risk: ", AtRisk
+                                )
+                        )
+                    ) +
+                    geom_line(
+                        aes(
+                            linetype = Treatment,
+                            color = Treatment
+                        ),
+                        linewidth = 1
+                    ) +
+                    geom_ribbon(
+                        aes(
+                            ymin = Lower,
+                            ymax = Upper,
+                            fill = Treatment
+                        ),
+                        alpha = .25
+                    ) + 
+                    xlab("Time") +
+                    scale_y_continuous(
+                        name = "Survival probability (%)",
+                        labels = scales::percent
+                    ) + 
+                    theme(
+                        panel.background = element_blank(),
+                        panel.grid.major.y = element_line(colour = "gray"),
+                        panel.grid.major.x = element_blank(),
+                        axis.title = element_text(size = 12),
+                        axis.text = element_text(size = 12)
+                    ) +
+                    guides(fill = "none"),
+                tooltip = "text"
+            ) |>
+                layout(legend = list(x = 0, y = 1))
+        )
+    )
+)
+```
+
+Now, in order to make the filters display a selection by default, we can add some `JavaScript`. 
+
+```{js}
+function filter_default() {
+    document.getElementById("celltype").getElementsByClassName("selectized") 
+[0].selectize.setValue("smallcell", false);
+ }
+ function filter_default2() {
+    document.getElementById("age").getElementsByClassName("selectized") 
+[0].selectize.setValue("Greater than 60", false);
+ }
+window.addEventListener("load", filter_default)
+window.addEventListener("load", filter_default2)
+```
+
+The `addEventListener` method tells these functions to run when the browser is loaded.
