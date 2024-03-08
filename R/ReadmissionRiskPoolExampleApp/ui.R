@@ -27,6 +27,7 @@ fluidPage(
         
         # Sidebar containing filters, etc.
         sidebarPanel(
+            width = 5,
             
             # Tally's of risk pool
             HTML("<h3 style = 'text-align: center;'><u>Risk Pool Summary</u></h3>"),
@@ -45,11 +46,11 @@ fluidPage(
                 value = c(0, 30),
                 step = 1
             )
-            
         ),
         
         # Main panel with map
         mainPanel(
+            width = 7,
             
             # Row of metrics
             fluidRow(

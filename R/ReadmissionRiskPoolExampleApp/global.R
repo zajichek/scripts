@@ -11,34 +11,6 @@ library(plotly)
 library(tigris)
 library(sf)
 
-# Assume there are this many patients in the risk pool
-n_patients <- 500
-
-# Generate some fake patients
-risk_pool <-
-    tibble(
-        PatientID = 1:n_patients,
-        DaysSinceDischarge = sample(0:30, n_patients, replace = TRUE),
-        ClinicalRisk = 1 / (1 + exp(-rnorm(n_patients, mean = -3)))
-    )
-
-# Generate a fake time series of readmission rates
-current_time <- Sys.time()
-current_date <- as.Date(current_time)
-rate_over_time <- 
-    tibble(
-        Date = seq(current_date - lubridate::years(1), current_date, 365.25/12),
-        ReadmissionRate = 1 / (1 + exp(-rnorm(length(Date), mean = -3, sd = .5))),
-        ExpectedPenalty = runif(length(Date), min = 0, max = 100)
-    ) |>
-    mutate(
-        ExpectedPenalty = 
-            case_when(
-                ReadmissionRate > mean(ReadmissionRate) ~ -1*ExpectedPenalty,
-                TRUE ~ ExpectedPenalty
-            )
-    )
-
 # Get set of zip codes for Wisconsin
 zips_wi <- zctas(year = 2010, state = "WI")
 
@@ -82,13 +54,6 @@ county_outlines <-
         STATE_NAME == "Wisconsin"
     )
 
-# Make a color pallette
-pal <- 
-    colorNumeric(
-        palette = "RdYlGn",
-        domain = -1*seq(0, 3, .1)
-    )
-
 # WI outline and counties
 base_map <-
     leaflet(height = "500px") %>%
@@ -126,3 +91,52 @@ base_map <-
             ),
         label = ~NAME
     ) 
+
+### Generating fake data for app demonstration
+
+# Assume there are this many patients in the risk pool
+n_patients <- 500
+
+# Create some fake patients
+set.seed(4411332)
+risk_pool <-
+    tibble(
+        PatientID = 1:n_patients,
+        DaysSinceDischarge = sample(0:30, n_patients, replace = TRUE),
+        ClinicalRisk = 1 / (1 + exp(-rnorm(n_patients, mean = -3)))
+    ) |>
+    
+    # Join to get all zip codes
+    cross_join(
+        y = zips_wi_centroids
+    ) |>
+    
+    # Randomly sample 1 zip code per patient
+    slice_sample(
+        n = 1,
+        by = PatientID
+    )
+
+# Generate a fake time series of readmission rates
+current_time <- Sys.time()
+current_date <- as.Date(current_time)
+rate_over_time <- 
+    tibble(
+        Date = seq(current_date - lubridate::years(1), current_date, 365.25/12),
+        ReadmissionRate = 1 / (1 + exp(-rnorm(length(Date), mean = -3, sd = .5))),
+        ExpectedPenalty = runif(length(Date), min = 0, max = 100)
+    ) |>
+    mutate(
+        ExpectedPenalty = 
+            case_when(
+                ReadmissionRate < mean(ReadmissionRate) ~ 0,
+                TRUE ~ ExpectedPenalty
+            )
+    )
+
+# Make a color pallette
+pal <- 
+    colorNumeric(
+        palette = "RdYlGn",
+        domain = -1*unique(risk_pool$ClinicalRisk)
+    )

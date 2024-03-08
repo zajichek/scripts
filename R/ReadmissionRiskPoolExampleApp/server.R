@@ -130,5 +130,29 @@ shinyServer(function(input, output, session) {
     
     # Risk pool map
     output$map <- renderLeaflet({base_map})
+    observe({
+        leafletProxy("map") |>
+            clearMarkers() |>
+            
+            # Add the current patients selected
+            addCircleMarkers(
+                data = current_risk_pool(),
+                layerId = ~PatientID,
+                lng = ~lon,
+                lat = ~lat,
+                radius = ~log(ClinicalRisk * 400),
+                label = ~paste0("Patient ID: ", PatientID, " (click for info)"),
+                popup = 
+                    ~paste0(
+                        "Patient ID: ", PatientID,
+                        "<br>Discharge readmission risk: ", round(ClinicalRisk*100,1), "%",
+                        "<br>Days since discharge: ", DaysSinceDischarge,
+                        "<br>Days left in risk pool: ", 30 - DaysSinceDischarge
+                    ),
+                color = ~pal(-1*ClinicalRisk),
+                fillOpacity = .75
+            )
+    })
+    
     
 })
