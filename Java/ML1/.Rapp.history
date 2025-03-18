@@ -1,0 +1,331 @@
+re$Model[1023]
+re$Model[,1023]
+re$Model[1023,]
+re$Model[1010:1023,]
+summary(re$AllModels[[1023]])
+coef(summary(re$AllModels[[1023]]))
+summary(re$AllModels[[1023]])$coef
+summary(re$AllModels[[1023]])$coef[,4]
+source("/Users/alexzajichek/Documents/Programming/R Scripts/all.mods.R")
+re=all.mods(winPerc, data)
+names(re)
+head(re$Model)
+re$Model[1:50,]
+max(re$Model[,4])
+re$Model[1023,4]
+re$Model[500:550,]
+subset(re$Model, .10 == 1)
+subset(re$Model, .10 = 1)
+subset(re$Model, ".10" ==1)
+attach(re$Model)
+re$Model[1023,]
+re$Model[1022,]
+re$Model[1000:1022,]
+which(sum(re$Model[,1:3]) == 3)
+re$Model[,1:3]
+ten = re$Model[,1]
+five = re$Model[,2]
+one = re$Model[,3]
+mean(ten)
+mean(five)
+mean(one)
+which(ten == 1)
+which(ten == 1 & five == 1 & one ==1)
+re$Model[513,]
+summary(re$All[[513]])
+data(trees)
+head(trees)
+d = data.frame(trees[,1:2])
+head(d)
+c = all.mods(trees$Volume, d)
+names(c)
+c$Mod
+summary(c$All[[3]])
+summary(c$All[[2]])
+summary(c$All[[1]])
+temp = trees[,1]
+temp
+colnames(temp) = col.names(trees)[1]
+colnames(trees, do.NULL =FALSE)
+colnames(trees, do.NULL =FALSE)[1]
+str(summary(c$All[[1]]))
+summary(c$All[[1]])$coef$chr
+summary(c$All[[1]])$coef
+summary(c$All[[1]])$coef[,1]
+row.names(summary(c$All[[1]])$coef)
+row.names(summary(c$All[[1]])$coef)[2]
+row.names(summary(c$All[[1]])$coef)[2]="X"
+colnames(temp) = colnames(trees, do.NULL =FALSE)[1]
+names(temp) = colnames(trees, do.NULL =FALSE)[1]
+temp
+colnames(trees, do.NULL =FALSE)[1]
+colnames(trees, do.NULL =FALSE)[1] = c(3,4,5)
+citations(package = "Lahman")
+citation(package = "Lahman")
+library(Lahman)
+help(package="Lahman")
+head(data(Teams))
+data(Teams)
+head(Teams)
+library(ggplot2)
+help(package="ggplot2")
+citation(package = "ggplot2")
+p <- seq(0, 1, len = 101)plot(p, dbeta(p, 33, 33), type = "l", ylim = c(0, 40))abline(v = 0.5, lty = 2)lines(p, dbeta(p, 33 + 15, 33 + 20 - 15), col = "red")lines(p, dbeta(p, 33 + 115, 33 + 200 - 115), col = "forestgreen")lines(p, dbeta(p, 33 + 1046, 33 + 2000 - 1046), col = "blue")
+library(boot)#
+truth = qexp(.25, rate = 1/6)#
+S = 5#
+func = function(data, indices) {#
+	d = data[indices]#
+	return(quantile(d,.25))#
+}#
+set.seed(20)#
+#
+result = array(NA, S)#
+for(i in 1:S) {#
+	r_exp = rexp(n = 20, rate = 1/6)#
+	ts = quantile(r_exp,.25)#
+	out = boot(r_exp, func, 1000)#
+	result[i] = 2*ts - mean(out$t)#
+}
+result
+result - truth
+mean(result - truth)
+library(boot)#
+truth = qexp(.25, rate = 1/6)#
+S = 500#
+func = function(data, indices) {#
+	d = data[indices]#
+	return(quantile(d,.25))#
+}#
+set.seed(20)#
+system.time(#
+result = array(NA, S)#
+for(i in 1:S) {#
+	r_exp = rexp(n = 20, rate = 1/6)#
+	ts = quantile(r_exp,.25)#
+	out = boot(r_exp, func, 1000)#
+	result[i] = 2*ts - mean(out$t)#
+}#
+)
+S = 500#
+func = function(data, indices) {#
+	d = data[indices]#
+	return(quantile(d,.25))#
+}#
+set.seed(20)#
+result = array(NA, S)#
+for(i in 1:S) {#
+	r_exp = rexp(n = 20, rate = 1/6)#
+	ts = quantile(r_exp,.25)#
+	out = boot(r_exp, func, 1000)#
+	result[i] = 2*ts - mean(out$t)#
+}
+mean(result - truth)
+sd(result - truth)
+head(result-truth)
+result
+mean(result)-truth
+mean(result-truth)
+sd(result-truth)/sqrt(S)
+bias = mean(result) - truth#
+std_error = sd(result - truth)/sqrt(S)#
+bias;std_error
+bias(result-truth)
+bias2=(result-truth)
+bias2
+sd(bias2)/sqrt(500)
+x = array(NA,1000)
+for(i in 1:1000) {}
+for(i in 1:1000) {
+x[i] = min(rnorm())
+}
+x[i] = min(rnorm(30))
+for(i in 1:1000) {
+x[i] = min(rnorm(30))
+}
+hist(x)
+for(i in 1:1000) {
+x[i] = min(rnorm(100))
+}
+hist(x)
+for(i in 1:1000) {
+x[i] = min(rexp(100))
+}
+hist(x)
+for(i in 1:1000) {
+x[i] = mean(rexp(100))
+}
+hist(x)
+for(i in 1:1000) {
+x[i] = sd(rexp(100))
+}
+hist(x)
+x=c(1,2,3,4,5)
+z = sample(x, 25, replace = true)
+z = sample(x, 25, replace = TRUE)
+x=c(rep(1,5),rep(2,5),rep(3,5),rep(4,5),rep(5,5))
+x
+x=c(1,2,3,4,5)
+x
+z = sample(x, 25, replace = TRUE)
+z
+mean(z)
+z = sample(x, 25, replace = TRUE)
+mean(z)
+z = sample(x, 25, replace = TRUE)
+mean(z)
+sd(x)
+sd(x)/sqrt(25)
+m = array(NA, 1000)
+for(i in 1:1000) {
+m[i] = mean(sample(x,25, replace=TRUE))
+}
+m
+hist(m)
+sd(x)/sqrt(25)
+sd(m)
+library(Lahman)
+head(Teams[,5:30])
+head(Teams[,15:30])
+head(Teams[,c(2,15:30)])
+head(Teams[,c(1,15:30)])
+head(Teams[,c(1,3,15:30)])
+unique(Teams$teamID)
+library(ggplot2)
+help(package="ggplot2")
+p <- qplot(wt, mpg, data = mtcars)#
+#
+# Fixed slopes and intercepts#
+p + geom_abline() # Can't see it - outside the range of the data#
+p + geom_abline(intercept = 20)
+p <- qplot(wt, mpg, data = mtcars)#
+#
+# Fixed slopes and intercepts#
+p + geom_abline() # Can't see it - outside the range of the data
+p+geom_abline(intercept=20)
+p+geom_abline(intercept=5)
+?qplot
+p+geom_area()
+plot(Teams$W,Teams$L)
+qplot(Teams$W,Teams$L)
+qplot(Teams$W,Teams$L) + geom_area()
+qplot(Teams$W,Teams$L)
+?geom_area
+ggplot(Teams$W)
+ggplot(Teams$W[2000:length(Teams[,1])])
+Teams$W
+ggplot(Teams$W)
+huron <- data.frame(year = 1875:1972, level = as.vector(LakeHuron))#
+library(plyr) # to access round_any#
+huron$decade <- round_any(huron$year, 10, floor)#
+#
+h <- ggplot(huron, aes(x=year))
+h
+huron <- data.frame(year = 1875:1972, level = as.vector(LakeHuron))#
+library(plyr) # to access round_any#
+huron$decade <- round_any(huron$year, 10, floor)#
+#
+ggplot(huron, aes(x=year))
+r = c(1:20)
+A=pi*r^2
+cpr(A,r)
+cor(A,r)
+cor(A,r^2)
+mod = lm(A~r^2)
+r=r^2
+mod = lm(A~r)
+summary(mod)
+y=log(A)
+r=sqrt(r)
+r=log(r)
+mod=lm(y~r)
+summary(mod)
+log(pi)
+r2=r^2
+y=exp(r)
+r
+y
+y=pi*r^2
+mod=lm(y~r)
+summary(r)
+summary(mod)
+plot(mod)
+mod=lm(y~r+r^2)
+summary(mod)
+r2=r^2
+mod=lm(y~r+r2)
+summary(mod)
+plot(mod$fit,mod$res)
+par(mfrow=c(2,2))
+plot(mod)
+s = c(1361.54, 1361.58, 1229.2, 1090.54, 1039.06, 1155.28, 1278, 1224.32, 1213.92, 1098.08)
+s
+mean(s)
+s = (s-mean(s))/sd(s)
+s
+plot(s)
+hist(s)
+pnorm(s[1])
+pnorm(s[2])-pnorm(s[1])
+100*(pnorm(s[2])-pnorm(s[1]))
+mean(s)
+s = c(1361.54, 1361.58, 1229.2, 1090.54, 1039.06, 1155.28, 1278, 1224.32, 1213.92, 1098.08)
+mean(s)
+pnorm(mean(s)+.04, mean=mean(s),sd=sd(s))
+pnorm(mean(s)+.04, mean=mean(s),sd=sd(s))-.5
+docs = read.table("M.txt", header=T)
+x = c();#
+for(i in 2:length(docs[1,])) {#
+	x = c(x, docs[,i]);#
+}
+docMatrix = matrix(x, nrow = length(docs[,1]), ncol = length(docs[1,])-1)
+SVD = svd(docMatrix);
+names(SVD)
+singular_values = SVD$d[1:5]
+singular_values
+SVD = svd(docMatrix, nu = 5, nv = 5);
+singular_values = SVD$d[1:5]
+singular_values
+?svd
+left_vectors = SVD$u
+right_vectors = SVD$v
+header(left_vectors)
+head(left_vectors)
+head(right_vectors)
+c1_word = data.frame(docs$Word, "C1" = left_vectors[,1])#
+c1_word = c1_word[order(c1_word$C1)[1:10],]#
+c2_word = data.frame(docs$Word, "C2" = left_vectors[,2])#
+c2_word = c2_word[order(c2_word$C2)[1:10],]#
+c3_word = data.frame(docs$Word, "C3" = left_vectors[,3])#
+c3_word = c3_word[order(c3_word$C3)[1:10],]#
+c4_word = data.frame(docs$Word, "C4" = left_vectors[,4])#
+c4_word = c4_word[order(c4_word$C4)[1:10],]#
+c5_word = data.frame(docs$Word, "C5" = left_vectors[,5])#
+c5_word = c5_word[order(c5_word$C5)[1:10],]
+c1_word
+c2_word
+c3_word
+c4_word
+c5_word
+docNames = names(docs[2:length(docs[1,])])
+head(docNames)
+head(right_vectors[,1])
+head(right_vectors)
+length(right_vectors[,1])
+c1_doc = data.frame(docNames, "C1" = right_vectors[,1])#
+c1_doc = c1_doc[order(c1_doc$C1)[1:10], ]#
+c2_doc = data.frame(docNames, "C2" = right_vectors[,2])#
+c2_doc = c2_doc[order(c2_doc$C2)[1:10], ]#
+c3_doc = data.frame(docNames, "C3" = right_vectors[,3])#
+c3_doc = c3_doc[order(c3_doc$C3)[1:10], ]#
+c4_doc = data.frame(docNames, "C4" = right_vectors[,4])#
+c4_doc = c4_doc[order(c4_doc$C4)[1:10], ]#
+c5_doc = data.frame(docNames, "C5" = right_vectors[,5])#
+c5_doc = c5_doc[order(c5_doc$C5)[1:10], ]
+c1_doc
+c2_doc
+c3_doc
+c4_doc
+c5_doc
+singular_values
+data.frame(singular_values)

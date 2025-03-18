@@ -1,0 +1,92 @@
+\documentclass{article}
+	\addtolength{\oddsidemargin}{-.875in}
+	\addtolength{\evensidemargin}{-.875in}
+	\addtolength{\textwidth}{1.75in}
+	\addtolength{\topmargin}{-.875in}
+	\addtolength{\textheight}{1.75in}
+	\usepackage{graphicx}
+	\usepackage{amsmath}
+	\usepackage{cases}
+\usepackage{amsfonts}
+\usepackage{bbm}
+\usepackage{amssymb}
+
+\begin{document}
+\title{Homework 7 \\ \Large Computer Intensive Statistics, Spring 2017}
+\author{Alex Zajichek}
+\date{Due March 5, 2017}
+\maketitle
+
+*All R code is in the separate file {\tt Brains.R}
+\section*{Normal mixture model on brain image via EM algorithm}
+\subsection*{(a)}
+Cross-sections at the $100^{th}$ index of each dimension was chosen to display a slice of the brain image.
+\begin{center}
+\includegraphics[scale=.5]{Xdir.pdf}
+\end{center}
+\begin{center}
+\includegraphics[scale=.5]{Ydir.pdf}
+\includegraphics[scale=.5]{Zdir.pdf}
+\end{center}
+\subsection*{(b)}
+{\tt ggplot2} was used to plot a density of the intensities of brain matter.
+\begin{center}
+\includegraphics[scale=.5]{DensityPlot.pdf}
+\end{center}
+\subsection*{(c)}
+The {\tt EMmix1} function from the class notes was used to obtain parameter estimates. The above density plot was examined to input reasonable starting values. The table below gives the results:
+\vskip.5in
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+& CSF & Gray & White \\ \hline
+$\hat{\mu}$ & 47.497 & 97.228 & 131.826 \\ 
+$\hat{\sigma}$ & 11.565 & 10.715 & 7.961 \\
+$\hat{p}$ & 0.192 & 0.478 & 0.331 \\
+\hline
+\end{tabular}
+\end{center}
+
+\subsection*{(d)}
+The function written is called {\tt classify\_brain}, and is in the corresponding {\tt .R} file (as well as pasted below).
+\begin{verbatim}
+EM <- list(mu = c(47.49701, 97.22827, 131.82621), 
+sigma = c(11.564902, 10.715485, 7.961161), p = c(0.1916802, 0.4775411, 0.3307788))
+
+classify_brain <- function(x, theta) {
+  which.max(theta$p*dnorm(x, theta$mu, theta$sigma))
+}
+
+classifications <- sapply(brain_only, classify_brain, theta = EM)
+\end{verbatim}
+It classifies a given intensity into a tissue type by finding the maximum of each class probability multiplied by the corresponding normal density evaluated at the intensity. Once classifications were obtained, the were placed back into the original array structure of the brain image in order to plot the results using the {\tt image} function. The images below show the same cross-sections as in part (a), but the colors now correspond to the predicted type of brain matter from the normal mixture model.
+ \begin{center}
+\includegraphics[scale=.45]{XClass.pdf}
+\end{center}
+\begin{center}
+\includegraphics[scale=.45]{YClass.pdf}
+\end{center}
+\begin{center}
+\includegraphics[scale=.45]{ZClass.pdf}
+\end{center}
+
+
+\subsection*{(e)}
+By using the {\tt Rprof} and {\tt summaryRprof} functions, we could determine the {\tt dnorm} calls were taking the most time to complete while running the {\tt EMmix1} function.
+\begin{verbatim}
+Rprof()
+EMmix1(brain_only,theta) 
+summaryRprof() #Spending most time in 'dnorm'
+\end{verbatim}
+
+\subsection*{(f)}
+Yes. In the $E-Step$ of the algorithm, instead of calculating the product of the class probabilities and the normal density for every observation in the data, we can simply just do that for the unique values. We can keep track of how many of each unique value there are, and then multiply each weight by that value. This will significantly decrease the number of the calculations being made in the process.
+
+
+
+
+
+
+
+
+\end{document}

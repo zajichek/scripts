@@ -1,0 +1,11 @@
+Package: JNaiveBayes
+Version: 0.0-1
+Date: 2017-04-12
+Title: Naive Bayes Document Classification with Java
+Author: Tyler Olson, Alex Zajichek
+Maintainer: Alex Zajichek <alexander-zajichek@uiowa.edu>, Tyler Olson <tyler-w-olson@uiowa.edu>
+Description: Build a naive bayes' classifier on a set of test documents, then get predictions for a provided test set.
+Depends: R (>= 2.7.0), rJava (>= 0.5-0), xtable(>= 1.8-2)
+SystemRequirements: Java (>= 1.5)
+License: GPL-3
+Suggests: testthat

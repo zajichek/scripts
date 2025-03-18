@@ -1,3 +1,3 @@
 # scripts
 
-A repository of miscellaneous scripts and code snippets.
+A repository of miscellaneous scripts and code bases from over the years.
