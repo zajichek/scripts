@@ -938,6 +938,47 @@ model_dat$Mens <-
     )
   )
 
+### Make multiple test set variations
+model_dat <-
+  model_dat |>
+
+  # Fpr each dataset
+  map(
+    function(.tourney) {
+      .tourney |>
+
+        # Remove pred set
+        filter(!PredSet) |>
+
+        # Bind to get test set variations
+        bind_rows(
+          # 1. Correct data (65% of model weight)
+          .tourney |> filter(PredSet) |> add_column(Method = "Correct"),
+
+          # 2. Opposite seeds (10% of model weight)
+          .tourney |>
+            filter(PredSet) |>
+            mutate(temp_seed = Seed_1, Seed_1 = Seed_2, Seed_2 = temp_seed) |>
+            select(-temp_seed) |>
+            add_column(Method = "Opposite"),
+
+          # 3. If teams had the same seed (average over possibilies, then 25% of model weight)
+          1:16 |>
+            map_df(
+              ~ .tourney |>
+                filter(PredSet) |>
+                mutate(
+                  across(
+                    c(Seed_1, Seed_2),
+                    \(x) .x
+                  )
+                )
+            ) |>
+            add_column(Method = "Same")
+        )
+    }
+  )
+
 ### Modeling
 
 # Load package
@@ -958,7 +999,7 @@ all_predictions <-
       # Extract predictor/outcome names
       x <- setdiff(
         names(train),
-        c("ID", "PredSet", "TeamID_1", "TeamID_2", "Target")
+        c("ID", "PredSet", "TeamID_1", "TeamID_2", "Target", "Method")
       )
       y <- "Target"
 
@@ -1014,6 +1055,7 @@ all_predictions <-
           Season,
           TeamID_1,
           TeamID_2,
+          Method,
           Prediction = p1
         )
     }
