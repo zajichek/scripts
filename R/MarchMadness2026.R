@@ -983,7 +983,7 @@ model_dat <-
 
 # Load package
 library(h2o)
-h2o.init()
+h2o.init(nthreads = 50)
 
 # Fit model and gather predictions for current season
 all_predictions <-
@@ -1061,7 +1061,52 @@ all_predictions <-
     }
   )
 
-### Write submission file
+### Obtain final weighted predictions
+final_predictions <-
+  all_predictions |>
+
+  # For each tournament
+  map_df(
+    function(.tourney) {
+      bind_rows(
+        .tourney |>
+
+          # Filter to complete ones
+          filter(Method %in% c("Correct", "Opposite")),
+        .tourney |>
+
+          # Filter to same ones
+          filter(Method == "Same") |>
+
+          # Average for each matchup
+          summarize(
+            Prediction = mean(Prediction),
+            .by = c(
+              ID,
+              Season,
+              TeamID_1,
+              TeamID_2,
+              Method
+            )
+          )
+      ) |>
+
+        # Send over the columns
+        pivot_wider(
+          names_from = Method,
+          values_from = Prediction
+        ) |>
+
+        # Make final prediction
+        mutate(Prediction = .65 * Correct + .25 * Same + .10 * Opposite) |>
+
+        # Change location
+        relocate(Prediction, .after = TeamID_2)
+    },
+    .id = "Tourney"
+  )
+
+### Write submission files
 
 # Kaggle submission
 sample_submission |>
@@ -1069,60 +1114,57 @@ sample_submission |>
   # Remove placeholder
   select(-Pred) |>
 
-  # Join to get predictions from model
+  # Join to get actual predictions
   inner_join(
-    y = all_predictions |>
-      map_df(
-        ~ .x |>
-          transmute(
-            ID = paste0(Season, "_", TeamID_1, "_", TeamID_2),
-            Pred = Prediction
-          )
+    y = final_predictions |>
+
+      # Format correctly
+      transmute(
+        ID = paste0(Season, "_", TeamID_1, "_", TeamID_2),
+        Pred = Prediction
       ),
     by = "ID"
   ) |>
 
   # Write to file
-  write_csv(file = paste0("MMLM_2025_", Sys.Date(), "_WithSeeds.csv"))
+  write_csv(file = paste0("MMLM_2026_", Sys.Date(), ".csv"))
 
 # Attach names for lookup (bracket fill out)
+### FIX TO ONLY WRITE TEAMS THAT ARE IN TOURNAMENT TO REDUCE SIZE
 sample_submission |>
 
   # Remove placeholder
   select(-Pred) |>
 
-  # Join to get predictions from model
+  # Join to get names
   inner_join(
-    y = map2(
-      .x = all_predictions,
-      .y = as.list(names(all_predictions)),
-      ~ .x |>
+    y = final_predictions |>
 
-        # Join to get the team name
-        inner_join(
-          y = pluck(dat, .y, "Teams") |>
-            select(TeamID_1 = TeamID, TeamName_1 = TeamName),
-          by = "TeamID_1"
-        ) |>
+      # Filter to mens tournament
+      filter(Tourney == "Mens") |>
 
-        # Join to get the team name
-        inner_join(
-          y = pluck(dat, .y, "Teams") |>
-            select(TeamID_2 = TeamID, TeamName_2 = TeamName),
-          by = "TeamID_2"
-        ) |>
+      # Join to get team names
+      inner_join(
+        y = dat$Mens$Teams |> select(TeamID_1 = TeamID, TeamName_1 = TeamName),
+        by = "TeamID_1"
+      ) |>
+      inner_join(
+        y = dat$Mens$Teams |> select(TeamID_2 = TeamID, TeamName_2 = TeamName),
+        by = "TeamID_2"
+      ) |>
 
-        # Keep some columns
-        transmute(
-          ID = paste0(Season, "_", TeamID_1, "_", TeamID_2),
-          TeamName_1,
-          TeamName_2,
-          Pred = Prediction
-        )
-    ) |>
-      bind_rows(.id = "Tourney"),
+      # Keep some columns
+      transmute(
+        ID = paste0(Season, "_", TeamID_1, "_", TeamID_2),
+        TeamName_1,
+        TeamName_2,
+        Prediction,
+        Correct,
+        Opposite,
+        Same
+      ),
     by = "ID"
   ) |>
 
   # Write to file
-  write_csv(file = paste0("MMLM_2025_WithNames_", Sys.Date(), "_WithSeeds.csv"))
+  write_csv(file = paste0("MMLM_2026_WithNames_", Sys.Date(), ".csv"))
