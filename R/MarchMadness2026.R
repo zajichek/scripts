@@ -1130,7 +1130,6 @@ sample_submission |>
   write_csv(file = paste0("MMLM_2026_", Sys.Date(), ".csv"))
 
 # Attach names for lookup (bracket fill out)
-### FIX TO ONLY WRITE TEAMS THAT ARE IN TOURNAMENT TO REDUCE SIZE
 sample_submission |>
 
   # Remove placeholder
@@ -1166,5 +1165,135 @@ sample_submission |>
     by = "ID"
   ) |>
 
+  # Filter to teams in tournament
+  filter(
+    ID %in%
+      (model_dat$Mens |>
+
+        # Filter to teams in tournament
+        filter(
+          Season == 2026,
+          PredSet,
+          Method == "Correct",
+          between(Seed_1, 1, 16),
+          between(Seed_2, 1, 16)
+        ) |>
+
+        # Make an ID
+        transmute(
+          ID = paste0(Season, "_", TeamID_1, "_", TeamID_2)
+        ) |>
+
+        # Extract the ID
+        pull("ID"))
+  ) |>
+
   # Write to file
   write_csv(file = paste0("MMLM_2026_WithNames_", Sys.Date(), ".csv"))
+
+
+###### Extra misc. (not run for submission)
+
+model_dat |>
+
+  # For each dataset
+  map_df(
+    ~ .x |>
+
+      # Filter to prior years
+      filter(Season < 2026) |>
+
+      # Keep some columns
+      select(
+        Seed_1,
+        Seed_2,
+        Target
+      ),
+    .id = "Tourney"
+  ) |>
+
+  # Count the wins / games
+  summarize(
+    Wins = sum(Target),
+    Games = n(),
+    .by = c(
+      Tourney,
+      Seed_1,
+      Seed_2
+    )
+  ) |>
+
+  # Flip to consolidate
+  mutate(
+    Wins = case_when(
+      Seed_1 >= Seed_2 ~ Games - Wins,
+      TRUE ~ Wins
+    ),
+    SeedGood = pmin(Seed_1, Seed_2),
+    SeedBad = pmax(Seed_1, Seed_2)
+  ) |>
+
+  # Now combine
+  summarize(
+    across(
+      c(Wins, Games),
+      sum
+    ),
+    .by = c(
+      Tourney,
+      SeedGood,
+      SeedBad
+    )
+  ) |>
+
+  # Sort the data
+  arrange(Tourney, SeedGood, SeedBad) |>
+
+  # Compute probability
+  mutate(
+    Win = Wins / Games,
+    Loss = (Games - Wins) / Games
+  ) |>
+  select(-Wins) |>
+  View()
+
+library(dplyr)
+
+adjust_march_madness_prob <- function(
+  game_tbl,
+  hist_tbl,
+  hist_shrink_n = 20,
+  prior_scale = 0.5,
+  model_strength = 20
+) {
+  logit <- function(p) log(p / (1 - p))
+  inv_logit <- function(x) 1 / (1 + exp(-x))
+
+  global_mean <- hist_tbl %>%
+    summarise(global_mean = sum(fav_wins) / sum(games)) %>%
+    pull(global_mean)
+
+  hist_tbl2 <- hist_tbl %>%
+    rename(n_matchup = games)
+
+  game_tbl %>%
+    mutate(
+      seed_fav = pmin(seed_a, seed_b),
+      seed_dog = pmax(seed_a, seed_b),
+      favored_is_a = seed_a < seed_b
+    ) %>%
+    left_join(hist_tbl2, by = c("seed_fav", "seed_dog")) %>%
+    mutate(
+      raw_hist_mean = fav_wins / n_matchup,
+      shrunk_hist_mean = (n_matchup *
+        raw_hist_mean +
+        hist_shrink_n * global_mean) /
+        (n_matchup + hist_shrink_n),
+      p_hist = if_else(favored_is_a, shrunk_hist_mean, 1 - shrunk_hist_mean),
+      m_ab = prior_scale * sqrt(n_matchup),
+      w_model = model_strength / (model_strength + m_ab),
+      p_adj = inv_logit(
+        w_model * logit(p_model) + (1 - w_model) * logit(p_hist)
+      )
+    )
+}
