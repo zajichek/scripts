@@ -1025,7 +1025,8 @@ all_predictions <-
           stopping_metric = "MSE",
           sort_metric = "MSE",
           seed = 11223344,
-          max_runtime_secs = 3600 * 2
+          max_runtime_secs = 3600 * 2,
+          include_algos = c("GBM", "DRF", "XGBoost")
         )
 
       # Extract the top model (already trained on full training set)
@@ -1043,7 +1044,8 @@ all_predictions <-
       pred <- h2o.predict(best_model, newdata = test)
 
       # Return a data frame of the prediction sets
-      h2o.cbind(test, pred) |>
+      pred <-
+        h2o.cbind(test, pred) |>
 
         # Convert to data frame
         as.data.frame() |>
@@ -1058,6 +1060,31 @@ all_predictions <-
           Method,
           Prediction = p1
         )
+
+      # Extract SHAP values
+      shap <- h2o.predict_contributions(best_model, newdata = test)
+      shap <-
+        bind_cols(
+          test |>
+            as.data.frame() |>
+            as_tibble() |>
+            select(ID, Season, TeamID_1, TeamID_2, Method),
+          shap |> as.data.frame() |> as_tibble()
+        )
+
+      # Return results as list
+      list(
+        Leaderboard = auto_mods@leaderboard |> as.data.frame() |> as_tibble(),
+        BestModel = bind_rows(
+          tibble(Item = "algorithm", Value = list(best_model@algorithm)),
+          best_model@parameters |> enframe(name = "Item", value = "Value")
+        ),
+        TestPreds = pred,
+        VariableImportance = h2o.varimp(best_model) |>
+          as.data.frame() |>
+          as_tibble(),
+        SHAP = shap
+      )
     }
   )
 
@@ -1069,11 +1096,11 @@ final_predictions <-
   map_df(
     function(.tourney) {
       bind_rows(
-        .tourney |>
+        .tourney$TestPreds |>
 
           # Filter to complete ones
           filter(Method %in% c("Correct", "Opposite")),
-        .tourney |>
+        .tourney$TestPreds |>
 
           # Filter to same ones
           filter(Method == "Same") |>
@@ -1191,6 +1218,48 @@ sample_submission |>
   # Write to file
   write_csv(file = paste0("MMLM_2026_WithNames_", Sys.Date(), ".csv"))
 
+###### Export components
+
+# Leaderboard
+all_predictions$Mens$Leaderboard |>
+  write_csv(file = paste0("MMLM_2026_Mens_Leaderboard_", Sys.Date(), ".csv"))
+
+# Variable importance
+all_predictions$Mens$VariableImportance |>
+  write_csv(
+    file = paste0("MMLM_2026_Mens_VariableImportance_", Sys.Date(), ".csv")
+  )
+
+# SHAP
+all_predictions$Mens$SHAP |>
+  filter(Method == "Correct") |>
+  mutate(
+    ID = paste0(Season...2, "_", TeamID_1, "_", TeamID_2),
+  ) |>
+  rename(Season = Season...6) |>
+  select(-c(Season...2, TeamID_1, TeamID_2, Method)) |>
+  filter(
+    ID %in%
+      (model_dat$Mens |>
+
+        # Filter to teams in tournament
+        filter(
+          Season == 2026,
+          PredSet,
+          Method == "Correct",
+          between(Seed_1, 1, 16),
+          between(Seed_2, 1, 16)
+        ) |>
+
+        # Make an ID
+        transmute(
+          ID = paste0(Season, "_", TeamID_1, "_", TeamID_2)
+        ) |>
+
+        # Extract the ID
+        pull("ID"))
+  ) |>
+  write_csv(file = paste0("MMLM_2026_Mens_SHAP_", Sys.Date(), ".csv"))
 
 ###### Extra misc. (not run for submission)
 
