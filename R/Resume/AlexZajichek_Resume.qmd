@@ -1,0 +1,138 @@
+---
+title: ""
+format:
+  pdf:
+    documentclass: article
+    geometry:
+      - top=0.45in
+      - bottom=0.45in
+      - left=0.5in
+      - right=0.5in
+    fontsize: 9.5pt
+    colorlinks: true
+    pagestyle: empty
+    include-in-header:
+      text: |
+        \usepackage{xcolor}
+        \usepackage{titlesec}
+        \usepackage{enumitem}
+        \usepackage{array}
+        \usepackage{tabularx}
+        \usepackage{hyperref}
+        \definecolor{accent}{HTML}{155E75}
+        \definecolor{accentdark}{HTML}{123F4D}
+        \definecolor{text}{HTML}{263238}
+        \definecolor{muted}{HTML}{5F6B70}
+        \definecolor{rule}{HTML}{C9D6DA}
+        \pagenumbering{gobble}
+        \color{text}
+        \setlength{\parindent}{0pt}
+        \setlength{\parskip}{1.5pt}
+        \renewcommand{\familydefault}{\sfdefault}
+        \urlstyle{same}
+        \hypersetup{colorlinks=true,urlcolor=accentdark,linkcolor=accentdark,pdfborder={0 0 0}}
+        \titleformat{\section}
+          {\color{accentdark}\large\bfseries\MakeUppercase}{}{0em}{}
+          [\vspace{-0.45em}{\color{rule}\titlerule[0.65pt]}]
+        \titlespacing*{\section}{0pt}{8pt}{4pt}
+        \setlist[itemize]{
+          leftmargin=1.15em,
+          label=\textcolor{accent}{\raisebox{0.15ex}{\scriptsize$\blacktriangleright$}},
+          itemsep=1.2pt,topsep=1.5pt,parsep=0pt
+        }
+        \newcommand{\contactsep}{\hspace{0.6em}{\color{rule}\textbar}\hspace{0.6em}}
+        \newcommand{\job}[4]{%
+          \noindent\begin{tabularx}{\textwidth}{@{}X>{\raggedleft\arraybackslash}p{1.9in}@{}}
+          {\bfseries #1}\hspace{0.35em}{\color{muted}\textbar}\hspace{0.35em}{\color{accentdark}\bfseries #2} &
+          {\color{muted}\small #3}\\[-0.15em]
+          {\color{muted}\small #4} & \\
+          \end{tabularx}\vspace{-0.65em}
+        }
+        \newcommand{\school}[4]{%
+          \noindent\begin{tabularx}{\textwidth}{@{}X>{\raggedleft\arraybackslash}p{1.25in}@{}}
+          {\bfseries #1}\hspace{0.35em}{\color{muted}\textbar}\hspace{0.35em}{\color{accentdark}\bfseries #2} &
+          {\color{muted}\small #3}\\[-0.15em]
+          \vspace{-.2in}
+          {\color{muted}\small #4} & \\
+          \end{tabularx}\vspace{-0.45em}
+        }
+---
+
+\begin{center}
+{\fontsize{25}{28}\selectfont\bfseries\color{accentdark} Alex Zajichek}\\[0.18em]
+{\large\bfseries\color{accent} Healthcare Data Scientist}\\[0.38em]
+{\small\color{muted}
+Wausau, WI \contactsep
+\href{tel:7155814262}{(715) 581-4262} \contactsep
+\href{mailto:alexzajichek@gmail.com}{alexzajichek@gmail.com}\\[0.22em]
+\href{https://www.zajichekstats.com}{zajichekstats.com} \contactsep
+\href{https://github.com/zajichek}{github.com/zajichek}}
+\end{center}
+
+\vspace{0.1em}{\color{rule}\hrule height 1.2pt}\vspace{0.45em}
+
+Healthcare statistician and data scientist specializing in bringing structure to complex analytical problems. I help healthcare leaders and organizations translate ambiguous clinical, research, and operational questions into reproducible analytical systems through thoughtful data design, statistical modeling, interactive applications, and reusable workflows.
+
+## Professional Experience
+
+\job{Cleveland Clinic}{Research Data Scientist II}{February 2023--Present}{Remote / Wausau, WI}
+
+- Build statistical modeling frameworks and analysis plans for observational research studies, including clinical risk prediction, propensity score methods, survival analysis, and machine learning.
+- Maintainer of, and contributor to, riskcalc.org, a repository of risk calculators for medical decision making.
+- Created and administer a department GitHub organization for open-source development
+- Integrated git-based workflows into statistical project management, version control, issue tracking, and collaborative development.
+- Write SQL queries to extract and structure EHR data from data warehouse environments.
+- Contribute statistical, methodological, and analytic sections to grant proposals and scientific manuscripts.
+- Tools: R, SQL, Python, Shiny (Server), dbt, Snowflake, Azure DevOps, GitHub, Posit Workbench/Connect, Quarto, R Markdown, Epic, H20
+
+\bigskip
+
+\job{Aspirus Health}{Data Scientist}{November 2020--January 2023}{Wausau, WI}
+
+- Designed ETL processes that centralized data from multiple sources into reusable analytics models for Vizient Clinical Database reporting, quality benchmarking, and operational insight.
+- Built interactive R Shiny applications for quality improvement programs (readmissions, value-based purchasing, Leapfrog), enabling leaders to explore “what-if” scenarios, identify improvement opportunities, and assess financial impact.
+- Developed reproducible R Markdown analyses and interactive data stories around clinical, operational, quality, and business metrics.
+- Partnered with clinical, quality, and operational stakeholders to clarify metric definitions, reporting needs, data limitations, and decision context.
+- Epic Cogito and Epic Caboodle Data Model certifications.
+- Tools: R, SQL, Shiny, R Markdown, QlikSense, Epic
+
+\bigskip
+
+\job{Sentry Insurance}{Advanced Analytics Modeler}{December 2019--October 2020}{Stevens Point, WI}
+
+- Built a text-mining tool using Python and spaCy to extract structured information from unstructured medical claim notes.
+- Integrated producer activity text data into predictive models to improve prospect prioritization.
+- Developed Tableau dashboards to evaluate geographic impacts of pricing models and underwriting issues.
+- Wrote SQL queries in SAS to extract, transform, and prepare analysis datasets from enterprise data sources.
+- Tools: R, Python, SAS, SQL, Tableau
+
+\bigskip
+
+\job{Cleveland Clinic}{Biostatistician}{June 2017--December 2019}{Cleveland, OH}
+
+- Built, automated, and operationalized predictive models to identify patients at high risk of appointment no-show.
+- Developed R Shiny web applications to deploy on riskcalc.org for bedside use.
+- Consulted with pharmaceutical companies and clinical researchers on EHR-based health outcomes research.
+- Supported observational research studies through statistical analysis, reproducible reporting, and manuscript development.
+- Caregiver Excellence Award, 2018-Q2
+- Tools: R, SQL, Shiny, MS SQL Server, SSMS, SSIS, CTakes, Java, H20
+
+## Additional Analytics & Software Work
+
+- Integrated an AI chatbot into an R Shiny application for exploring hospital readmission program data using {querychat}
+- Developed the {readmit} R package for analyzing hospital readmissions data
+- Deployed an interactive R Shiny application to explore Medicaid provider spending in WI utilizing DuckDB
+- Proposed a methodological modeling framework for managing hospital readmissions and built supporting app prototype
+
+## Education
+
+\school{University of Iowa}{M.S. Statistics}{2017}{Iowa City, IA}
+\vspace{-.1in}
+Major GPA: 3.93
+
+\bigskip
+
+\school{University of Wisconsin--La Crosse}{B.S. Statistics}{2015}{La Crosse, WI}
+\vspace{-.1in}
+Major GPA: 3.91  
+Minor: Computer Science
