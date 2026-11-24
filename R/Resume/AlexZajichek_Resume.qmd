@@ -75,13 +75,13 @@ Healthcare statistician and data scientist specializing in bringing structure to
 
 ## Professional Experience
 
-\job{Cleveland Clinic}{Research Data Scientist II}{February 2023--Present}{Remote / Wausau, WI}
+\job{Cleveland Clinic}{Research Data Scientist}{February 2023--Present}{Remote / Wausau, WI}
 
-- Build statistical modeling frameworks and analysis plans for observational research studies, including clinical risk prediction, propensity score methods, survival analysis, and machine learning.
-- Maintainer of, and contributor to, riskcalc.org, a repository of risk calculators for medical decision making.
-- Created and administer a department GitHub organization for open-source development
-- Integrated git-based workflows into statistical project management, version control, issue tracking, and collaborative development.
-- Write SQL queries to extract and structure EHR data from data warehouse environments.
+- Build statistical modeling frameworks and analysis plans for observational research projects, including clinical risk prediction, propensity score methods, survival analysis, and machine learning.
+- Consult with internal/external industry collaborators (e.g., pharma) to conduct real-world evidence studies using EHR data
+- Maintainer of riskcalc.org, a repository of risk calculators for medical decision making.
+- Integrated git-based and AI-based workflows into statistical project management, version control, issue tracking, and collaborative development.
+- Develop dbt projects and write SQL queries to extract and structure EHR data from data warehouse environments.
 - Contribute statistical, methodological, and analytic sections to grant proposals and scientific manuscripts.
 - Tools: R, SQL, Python, Shiny (Server), dbt, Snowflake, Azure DevOps, GitHub, Posit Workbench/Connect, Quarto, R Markdown, Epic, H20
 
@@ -119,8 +119,8 @@ Healthcare statistician and data scientist specializing in bringing structure to
 
 ## Additional Analytics & Software Work
 
+- Developed the [Readmission Risk Pool Platform](https://readmit.centralstatz.com/) for post-discharge readmission risk assessment and management
 - Integrated an AI chatbot into an R Shiny application for exploring hospital readmission program data using {querychat}
-- Developed the {readmit} R package for analyzing hospital readmissions data
 - Deployed an interactive R Shiny application to explore Medicaid provider spending in WI utilizing DuckDB
 - Proposed a methodological modeling framework for managing hospital readmissions and built supporting app prototype
 
